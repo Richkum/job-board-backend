@@ -36,6 +36,10 @@ export const User = new Schema(
       type: String,
       default: '',
     },
+    verificationCodeExpires: {
+      type: Date,
+      default: null,
+    },
     sessions: [
       {
         token: { type: String, required: true }, // JWT or session ID
@@ -104,6 +108,7 @@ export interface User {
   role: 'jobSeeker' | 'employer' | 'admin';
   isVerified: boolean;
   verificationCode: string;
+  verificationCodeExpires: Date | null;
   sessions: {
     token: string;
     device: {

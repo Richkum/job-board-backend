@@ -1,0 +1,145 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv='x-ua-compatible' content='ie=edge' />
+    <title>Email Verification</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <style type='text/css'>
+      @media screen {
+        @font-face {
+          font-family: 'Source Sans Pro';
+          font-style: normal;
+          font-weight: 400;
+          src:
+            local('Source Sans Pro Regular'),
+            local('SourceSansPro-Regular'),
+            url(https://fonts.gstatic.com/s/sourcesanspro/v10/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff)
+              format('woff');
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #f6f6f6;
+        font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333333;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .app-name {
+        color: #2563eb;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      h2 {
+        color: #1f2937;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+
+      .verification-code {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 8px;
+        padding: 25px;
+        text-align: center;
+        font-size: 36px;
+        letter-spacing: 8px;
+        font-weight: bold;
+        color: #ffffff;
+        margin: 30px 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .message {
+        color: #4b5563;
+        margin-bottom: 15px;
+      }
+
+      .warning {
+        background: #fff7ed;
+        border-left: 4px solid #f97316;
+        padding: 15px;
+        margin: 20px 0;
+        color: #c2410c;
+        font-size: 14px;
+      }
+
+      .footer {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .highlight {
+        color: #2563eb;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='card'>
+        <div class='header'>
+          <div class='app-name'>Job Board</div>
+        </div>
+
+        <h2>Verify Your Email Address</h2>
+
+        <p class='message'>Hi <span class='highlight'>{{username}}</span>,</p>
+
+        <p class='message'>Welcome to Job Board! Please use the verification
+          code below to complete your registration:</p>
+
+        <div class='verification-code'>
+          {{verificationCode}}
+        </div>
+
+        <div class='warning'>
+          ⚠️ This verification code will expire in 10 minutes for security
+          reasons.
+        </div>
+
+        <p class='message'>If you didn't create an account with us, you can
+          safely ignore this email.</p>
+      </div>
+
+      <div class='footer'>
+        <p>© {{year}} Job Board. All rights reserved.</p>
+        <p style='margin-top: 10px;'>This is an automated message, please do not
+          reply.</p>
+      </div>
+    </div>
+  </body>
+</html>
