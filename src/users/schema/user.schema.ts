@@ -1,19 +1,27 @@
 import { HydratedDocument, Schema } from 'mongoose';
 
-export const UserSchema = new Schema(
+export const User = new Schema(
   {
-    name: {
+    username: {
       type: String,
       required: true,
+      trim: true, // removes extra spaces
+      match: [
+        /^[a-zA-Z0-9 ]{3,30}$/,
+        'Username must be 3-30 characters and contain letters, numbers, or spaces.',
+      ],
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true, // ensure email is stored in lowercase
+      trim: true,
+      match: [/\S+@\S+\.\S+/, 'Please enter a valid email address.'],
     },
     password: {
       type: String,
-      required: true,
+      required: true, // Store hashed password only
     },
     role: {
       type: String,
@@ -28,84 +36,95 @@ export const UserSchema = new Schema(
       type: String,
       default: '',
     },
-    profile: {
-      type: {
-        bio: String,
-        technologies: [String],
-        socials: {
-          linkedin: { type: String, optional: true },
-          twitter: { type: String, optional: true },
-          github: { type: String, optional: true },
+    sessions: [
+      {
+        token: String, // Stores session tokens (e.g., JWT or other session identifier)
+        deviceName: String,
+        ipAddress: String,
+        loginLocation: {
+          country: String,
+          city: String,
+          coordinates: [Number],
         },
-        location: {
-          country: { type: String, optional: true },
-          city: { type: String, optional: true },
-          coordinates: { type: [Number], optional: true },
-        },
-        deviceInfo: [
-          {
-            deviceName: String,
-            ipAddress: String,
-            lastLogin: Date,
-          },
-        ],
-        profilePicture: String,
-        companyDetails: {
-          companyName: { type: String, optional: true },
-          website: { type: String, optional: true },
-          about: { type: String, optional: true },
-          companyLogo: { type: String, optional: true },
-        },
+        lastLogin: Date,
       },
-      default: {
-        bio: '',
-        technologies: [],
-        socials: {},
-        location: {},
-        deviceInfo: [],
-        profilePicture: '',
-        companyDetails: {},
+    ],
+    googleId: {
+      type: String,
+      default: null, // for Google OAuth users
+    },
+    profilePicture: {
+      type: String,
+      default: '', // URL for profile picture
+    },
+    profile: {
+      bio: { type: String, default: '' },
+      technologies: { type: [String], default: [] },
+      socials: {
+        linkedin: { type: String, default: '' },
+        twitter: { type: String, default: '' },
+        github: { type: String, default: '' },
+      },
+      location: {
+        country: { type: String, default: '' },
+        city: { type: String, default: '' },
+        coordinates: { type: [Number], default: [] },
+      },
+      companyDetails: {
+        companyName: { type: String, default: '' },
+        website: { type: String, default: '' },
+        about: { type: String, default: '' },
+        companyLogo: { type: String, default: '' },
       },
     },
   },
-  { timestamps: true }, // This adds createdAt and updatedAt fields
+  { timestamps: true }, // Automatically creates createdAt and updatedAt fields
 );
 
+// Interface to define the TypeScript User type
 export interface User {
-  name: string;
+  username: string;
   email: string;
   password: string;
   role: 'jobSeeker' | 'employer' | 'admin';
   isVerified: boolean;
   verificationCode: string;
-  profile: {
-    bio: string;
-    technologies: string[];
-    socials: {
-      linkedin?: string;
-      twitter?: string;
-      github?: string;
-    };
-    location: {
+  sessions: {
+    token: string;
+    deviceName: string;
+    ipAddress: string;
+    loginLocation: {
       country?: string;
       city?: string;
       coordinates?: [number, number];
     };
-    deviceInfo: {
-      deviceName: string;
-      ipAddress: string;
-      lastLogin: Date;
-    }[];
-    profilePicture: string;
-    companyDetails?: {
-      companyName?: string;
-      website?: string;
-      about?: string;
-      companyLogo?: string;
+    lastLogin: Date;
+  }[];
+  googleId?: string;
+  profilePicture: string;
+  profile: {
+    bio: string;
+    technologies: string[];
+    socials: {
+      linkedin: string;
+      twitter: string;
+      github: string;
+    };
+    location: {
+      country: string;
+      city: string;
+      coordinates: [number, number];
+    };
+    companyDetails: {
+      companyName: string;
+      website: string;
+      about: string;
+      companyLogo: string;
     };
   };
   createdAt: Date;
   updatedAt: Date;
 }
 
+// Export type for a User Document (with Mongoose functionality)
 export type UserDocument = HydratedDocument<User>;
