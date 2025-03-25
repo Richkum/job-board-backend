@@ -38,21 +38,36 @@ export const User = new Schema(
     },
     sessions: [
       {
-        token: String, // Stores session tokens (e.g., JWT or other session identifier)
-        deviceName: String,
-        ipAddress: String,
-        loginLocation: {
-          country: String,
-          city: String,
-          coordinates: [Number],
+        token: { type: String, required: true }, // JWT or session ID
+        device: {
+          name: { type: String, required: true }, // e.g., "Chrome on Windows"
+          os: { type: String, required: true }, // Operating system like "Windows 10", "iOS 16.5"
+          browser: { type: String, required: true }, // Browser details, e.g., "Chrome 90"
+          type: {
+            type: String,
+            enum: ['mobile', 'desktop', 'tablet', 'bot'],
+            default: 'desktop',
+          },
         },
-        lastLogin: Date,
+        ipAddress: { type: String, required: true },
+        location: {
+          country: { type: String, default: '' },
+          city: { type: String, default: '' },
+          coordinates: {
+            type: [Number], // [longitude, latitude]
+            default: [],
+            validate: {
+              validator: (v: number[]) => v.length === 2,
+              message: 'Coordinates must be [longitude, latitude]',
+            },
+          },
+        },
+        lastActivity: { type: Date, default: Date.now },
+        isCurrent: { type: Boolean, default: true }, // Mark active sessions
       },
     ],
-    googleId: {
-      type: String,
-      default: null, // for Google OAuth users
-    },
+    googleId: { type: String, sparse: true },
+    googleRefreshToken: { type: String },
     profilePicture: {
       type: String,
       default: '', // URL for profile picture
@@ -81,7 +96,7 @@ export const User = new Schema(
   { timestamps: true }, // Automatically creates createdAt and updatedAt fields
 );
 
-// Interface to define the TypeScript User type
+// TypeScript Interface
 export interface User {
   username: string;
   email: string;
@@ -91,16 +106,23 @@ export interface User {
   verificationCode: string;
   sessions: {
     token: string;
-    deviceName: string;
+    device: {
+      name: string;
+      os: string;
+      browser: string;
+      type: 'mobile' | 'desktop' | 'tablet' | 'bot';
+    };
     ipAddress: string;
-    loginLocation: {
+    location: {
       country?: string;
       city?: string;
       coordinates?: [number, number];
     };
-    lastLogin: Date;
+    lastActivity: Date;
+    isCurrent: boolean;
   }[];
   googleId?: string;
+  googleRefreshToken?: string;
   profilePicture: string;
   profile: {
     bio: string;
