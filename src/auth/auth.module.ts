@@ -19,7 +19,7 @@ import { AuthSchedule } from './auth.schedule';
     ScheduleModule.forRoot(),
     EmailModule,
   ],
-  providers: [AuthService, JwtStrategy, AuthSchedule], // Add AuthSchedule
+  providers: [AuthService, JwtStrategy, AuthSchedule],
   controllers: [AuthController],
   exports: [AuthService],
 })
