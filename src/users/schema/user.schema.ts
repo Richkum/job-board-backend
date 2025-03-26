@@ -1,6 +1,6 @@
 import { HydratedDocument, Schema } from 'mongoose';
 
-export const User = new Schema(
+export const UserSchema = new Schema(
   {
     username: {
       type: String,
