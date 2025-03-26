@@ -11,12 +11,14 @@ import * as geoip from 'geoip-lite';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { User, UserDocument } from 'src/users/schema/user.schema';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   // Helper function to generate a random 6-digit verification code as a string
@@ -71,6 +73,9 @@ export class AuthService {
     // Generate a 6-digit verification code
     const verificationCode = this.generateVerificationCode();
 
+    // Set verification code expiration (10 minutes from now)
+    const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+
     // Retrieve location info based on IP
     const location = this.getLocation(ipAddress);
 
@@ -82,6 +87,7 @@ export class AuthService {
       role: 'jobSeeker', // default role
       isVerified: false,
       verificationCode,
+      verificationCodeExpires,
       sessions: [
         {
           token: '', // token will be updated on login
@@ -124,7 +130,19 @@ export class AuthService {
 
     const savedUser = await newUser.save();
 
-    // TODO: Send the verification code to the user's email/phone
+    // Send verification email
+    try {
+      await this.emailService.sendVerificationEmail(
+        email,
+        username,
+        verificationCode,
+      );
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      // If email sending fails, delete the user and throw an error
+      await this.userModel.findByIdAndDelete(savedUser._id);
+      throw new BadRequestException('Failed to send verification email');
+    }
 
     return savedUser;
   }
@@ -132,6 +150,7 @@ export class AuthService {
   /**
    * Account verification function:
    * - Checks if the provided code matches the stored verification code.
+   * - Checks if the verification code has expired.
    * - Sets the account as verified and clears the verification code.
    */
   async verifyAccount(
@@ -147,15 +166,65 @@ export class AuthService {
       throw new BadRequestException('User is already verified');
     }
 
+    // Fixed type checking for verification code expiration
+    const currentDate = new Date();
+    const expirationDate = user.verificationCodeExpires;
+
+    if (!expirationDate || expirationDate < currentDate) {
+      // Clear the expired code
+      user.verificationCode = '';
+      user.verificationCodeExpires = null;
+      await user.save();
+
+      throw new BadRequestException(
+        'Verification code has expired. Please request a new one',
+      );
+    }
+
     if (user.verificationCode !== code) {
       throw new BadRequestException('Invalid verification code');
     }
 
     user.isVerified = true;
     user.verificationCode = '';
+    user.verificationCodeExpires = null;
     await user.save();
 
     return { message: 'Account verified successfully' };
+  }
+
+  async resendVerificationCode(email: string): Promise<{ message: string }> {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.isVerified) {
+      throw new BadRequestException('User is already verified');
+    }
+
+    // Generate new verification code
+    const verificationCode = this.generateVerificationCode();
+    const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Update user with new code
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpires = verificationCodeExpires;
+    await user.save();
+
+    // Send new verification email
+    try {
+      await this.emailService.sendVerificationEmail(
+        email,
+        user.username,
+        verificationCode,
+      );
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      throw new BadRequestException('Failed to send verification email');
+    }
+
+    return { message: 'New verification code sent successfully' };
   }
 
   /**
