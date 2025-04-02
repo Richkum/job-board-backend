@@ -17,6 +17,8 @@ import { JwtAuthGuard } from '../auth/gaurd/jwt-auth.guard';
 import { RegisterDto } from './dto/register.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -109,5 +111,27 @@ export class AuthController {
   async logoutAll(@Req() req: any) {
     this.logger.log(`Logout all for user ID: ${req.user._id}`);
     return this.authService.logout(req.user._id, 'all');
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    this.logger.log(
+      `Password reset requested for email: ${forgotPasswordDto.email}`,
+    );
+    return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    this.logger.log(
+      `Password reset verification for email: ${resetPasswordDto.email}`,
+    );
+    return this.authService.resetPassword(
+      resetPasswordDto.email,
+      resetPasswordDto.code,
+      resetPasswordDto.newPassword,
+    );
   }
 }

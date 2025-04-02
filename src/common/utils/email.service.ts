@@ -112,4 +112,48 @@ export class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Add this method to your email.service.ts file
+
+  /**
+   * Sends a password reset email with verification code
+   */
+  async sendPasswordResetEmail(email: string, code: string, username: string) {
+    const appName = 'Job Board App';
+
+    try {
+      this.logger.log(`Attempting to send password reset email to: ${email}`);
+
+      const info = await this.transporter.sendMail({
+        from: `"${appName}" <${this.configService.get<string>('EMAIL_USER')}>`,
+        to: email,
+        subject: `Password Reset for ${appName}`,
+        html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Hello ${username}!</h2>
+          <p>We received a request to reset your password. Use the verification code below to complete the process:</p>
+          
+          <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; letter-spacing: 5px; font-weight: bold; margin: 20px 0;">
+            ${code}
+          </div>
+          
+          <p>This code will expire in 25 minutes.</p>
+          <p>If you didn't request a password reset, you can safely ignore this email.</p>
+          
+          <p>Best regards,<br>The ${appName} Team</p>
+        </div>
+      `,
+      });
+
+      this.logger.log(
+        `Password reset email sent successfully to ${email}, messageId: ${info.messageId}`,
+      );
+      return { success: true, messageId: info.messageId };
+    } catch (error) {
+      this.logger.error(
+        `Failed to send password reset email to ${email}: ${error.message}`,
+      );
+      return { success: false, error: error.message };
+    }
+  }
 }

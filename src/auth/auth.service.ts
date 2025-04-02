@@ -354,4 +354,104 @@ export class AuthService {
     await user.save();
     return { success: true, message: 'Logged out successfully' };
   }
+
+  // Add these methods to your auth.service.ts file
+
+  /**
+   * Initiates password reset process by sending a verification code to user's email
+   */
+  async forgotPassword(email: string) {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      // For security reasons, don't reveal whether the email exists
+      return {
+        success: true,
+        message:
+          'If your email is registered, you will receive a password reset code.',
+      };
+    }
+
+    // Generate verification code (6 digits)
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetCodeExpires = new Date(Date.now() + 25 * 60 * 1000); // 25 minutes
+
+    console.log(`Generated reset code for ${email}: ${resetCode}`);
+
+    // Save code to user document
+    user.verificationCode = resetCode;
+    user.verificationCodeExpires = resetCodeExpires;
+
+    await user.save();
+
+    // Send email with reset code
+    const emailResult = await this.emailService.sendPasswordResetEmail(
+      email,
+      resetCode,
+      user.username,
+    );
+
+    if (!emailResult.success) {
+      console.error('Failed to send password reset email:', emailResult.error);
+    }
+
+    return {
+      success: true,
+      message:
+        'If your email is registered, you will receive a password reset code.',
+    };
+  }
+
+  /**
+   * Completes password reset by verifying code and updating password
+   */
+  async resetPassword(email: string, code: string, newPassword: string) {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new BadRequestException('Invalid email or reset code');
+    }
+
+    console.log(
+      `Verifying reset code for ${email}. Provided: ${code}, Stored: ${user.verificationCode}`,
+    );
+    console.log(`Code expires: ${user.verificationCodeExpires}`);
+
+    // Check if verification code is valid and not expired
+    if (
+      user.verificationCode !== code ||
+      !user.verificationCodeExpires ||
+      (user.verificationCodeExpires &&
+        user.verificationCodeExpires < new Date())
+    ) {
+      const isExpired =
+        user.verificationCodeExpires &&
+        user.verificationCodeExpires < new Date();
+      console.log(`Code validation failed. Expired? ${isExpired}`);
+
+      throw new BadRequestException(
+        isExpired
+          ? 'Reset code has expired. Please request a new one.'
+          : 'Invalid reset code.',
+      );
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    console.log(`Resetting password for ${email}`);
+
+    // Update password and clear verification code
+    user.password = hashedPassword;
+    user.verificationCode = '';
+    user.verificationCodeExpires = null;
+
+    await user.save();
+
+    return {
+      success: true,
+      message:
+        'Password has been reset successfully. You can now login with your new password.',
+    };
+  }
 }
