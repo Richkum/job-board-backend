@@ -1,20 +1,33 @@
 import { config } from 'dotenv';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
+import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 
 config();
 
 async function bootstrap() {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
-  app.use(bodyParser.json()); // 👈 Add this line
-  app.use(bodyParser.urlencoded({ extended: true })); // 👈 Add this too, just in case
+  app.use(bodyParser.json()); // For JSON payloads
+  app.use(bodyParser.urlencoded({ extended: true })); // For form data
 
+  // Enhanced request logging middleware
   app.use((req, res, next) => {
-    console.log(`Incoming Request: ${req.method} ${req.url}`);
-    console.log(`Request Body:`, req.body); // This should show your request data
+    logger.log(`Incoming Request: ${req.method} ${req.url}`);
+    if (req.method !== 'GET') {
+      logger.debug(`Request Body: ${JSON.stringify(req.body)}`);
+    }
+
+    // Track response time
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      logger.log(`Response: ${res.statusCode} - ${duration}ms`);
+    });
+
     next();
   });
 
@@ -29,11 +42,26 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
+      forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      exceptionFactory: (errors) => {
+        logger.error(`Validation errors: ${JSON.stringify(errors)}`);
+        const messages = errors.map((error) => {
+          // Add null check for constraints
+          const constraints = error.constraints
+            ? Object.values(error.constraints).join(', ')
+            : 'invalid';
+          return `${error.property} ${constraints}`;
+        });
+        return new Error(`Validation failed: ${messages.join('; ')}`);
+      },
     }),
   );
-  // app.useGlobalPipes(
-  //   new ValidationPipe({ whitelist: false, transform: false }),
-  // );
+
+  // Add exception filter for validation errors
+  app.useGlobalFilters(new ValidationExceptionFilter());
 
   // Add API prefix (optional, but recommended)
   app.setGlobalPrefix('api');
@@ -41,6 +69,6 @@ async function bootstrap() {
   const port = process.env.PORT || 5000;
   await app.listen(port);
 
-  console.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`Application is running on: http://localhost:${port}`);
 }
 bootstrap();
