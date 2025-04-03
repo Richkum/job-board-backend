@@ -5,6 +5,7 @@ import { MongooseConfigService } from './config/mongoose.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -18,6 +19,8 @@ import { AuthModule } from './auth/auth.module';
     }),
     // Add Auth Module
     AuthModule,
+    // Add Users Module
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
