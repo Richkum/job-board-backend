@@ -9,6 +9,11 @@ import { AuthService } from '../auth.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  /**
+   * Creates a new instance of the JwtAuthGuard with the given AuthService.
+   * The AuthService is used to validate the token and retrieve the user from the database.
+   * @param authService The AuthService to use for authentication.
+   */
   constructor(private readonly authService: AuthService) {
     super();
   }
