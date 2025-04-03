@@ -1,4 +1,4 @@
-import { HydratedDocument, Schema } from 'mongoose';
+import { HydratedDocument, Schema, Types } from 'mongoose';
 
 export const UserSchema = new Schema(
   {
@@ -28,6 +28,18 @@ export const UserSchema = new Schema(
       enum: ['jobSeeker', 'employer', 'admin'],
       default: 'jobSeeker',
     },
+    companies: [
+      {
+        company: {
+          type: Types.ObjectId,
+          ref: 'Company',
+        },
+        role: {
+          type: String,
+          enum: ['owner', 'admin', 'recruiter'],
+        },
+      },
+    ],
     isVerified: {
       type: Boolean,
       default: false,
@@ -106,6 +118,10 @@ export interface User {
   email: string;
   password: string;
   role: 'jobSeeker' | 'employer' | 'admin';
+  companies?: {
+    company: Types.ObjectId;
+    role: 'owner' | 'admin' | 'recruiter';
+  }[];
   isVerified: boolean;
   verificationCode: string;
   verificationCodeExpires: Date | null;
