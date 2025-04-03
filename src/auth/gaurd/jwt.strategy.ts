@@ -1,4 +1,3 @@
-// src/auth/strategies/jwt.strategy.ts
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -21,12 +20,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.userModel.findById(payload.sub);
+    console.log('JWT Strategy - Payload received:', payload);
+    const userId = payload.sub;
+    console.log('JWT Strategy - Looking for user with ID:', userId);
+
+    const user = await this.userModel.findById(userId);
+    console.log('JWT Strategy - User found:', user?._id);
 
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    return user;
+    // Return a plain object with all necessary ID fields
+    return {
+      _id: user._id.toString(),
+      id: user._id.toString(),
+      userId: user._id.toString(), // Added this for backwards compatibility
+      email: user.email,
+      role: user.role,
+      // Add other necessary user fields
+    };
   }
 }

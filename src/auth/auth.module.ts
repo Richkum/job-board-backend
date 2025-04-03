@@ -10,6 +10,7 @@ import { UserSchema } from '../users/schema/user.schema';
 import { DeviceDetectorService } from '../common/middleware/device-detector.service';
 import { EmailService } from '../common/utils/email.service';
 import { JwtStrategy } from '../auth/gaurd/jwt.strategy';
+import { JwtAuthGuard } from './gaurd/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -25,7 +26,13 @@ import { JwtStrategy } from '../auth/gaurd/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, DeviceDetectorService, EmailService, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    DeviceDetectorService,
+    EmailService,
+    JwtStrategy,
+    JwtAuthGuard,
+  ],
+  exports: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {}
