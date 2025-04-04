@@ -450,6 +450,8 @@ export class JobsService {
         }
       }
 
+      console.log('Search query:', JSON.stringify(query, null, 2));
+
       const [jobs, total] = await Promise.all([
         this.jobModel
           .find(query)
@@ -460,6 +462,15 @@ export class JobsService {
           .exec(),
         this.jobModel.countDocuments(query),
       ]);
+      // Log the job IDs that were found
+      console.log(
+        'Jobs found:',
+        jobs.map((job) => ({
+          id: job._id,
+          title: job.title,
+          description: job.description?.substring(0, 50) + '...', // Just show first 50 chars
+        })),
+      );
 
       return {
         jobs,

@@ -8,7 +8,7 @@ import {
   Max,
   IsPositive,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class SearchJobsDto {
   @IsOptional()
@@ -16,6 +16,10 @@ export class SearchJobsDto {
   search?: string;
 
   @IsOptional()
+  @Transform(({ value }) => {
+    // Convert string to array if it's not already an array
+    return Array.isArray(value) ? value : value ? [value] : [];
+  })
   @IsArray()
   @IsEnum(['full-time', 'part-time', 'contract', 'freelance', 'internship'], {
     each: true,
@@ -23,6 +27,9 @@ export class SearchJobsDto {
   jobTypes?: string[];
 
   @IsOptional()
+  @Transform(({ value }) => {
+    return Array.isArray(value) ? value : value ? [value] : [];
+  })
   @IsArray()
   @IsEnum(
     [
@@ -40,6 +47,9 @@ export class SearchJobsDto {
   categories?: string[];
 
   @IsOptional()
+  @Transform(({ value }) => {
+    return Array.isArray(value) ? value : value ? [value] : [];
+  })
   @IsArray()
   @IsEnum(['remote', 'on-site', 'hybrid'], { each: true })
   locationTypes?: string[];
@@ -53,6 +63,9 @@ export class SearchJobsDto {
   city?: string;
 
   @IsOptional()
+  @Transform(({ value }) => {
+    return Array.isArray(value) ? value : value ? [value] : [];
+  })
   @IsArray()
   @IsEnum(['entry', 'junior', 'mid', 'senior', 'lead', 'any'], { each: true })
   experienceLevels?: string[];
