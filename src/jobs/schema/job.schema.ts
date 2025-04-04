@@ -32,7 +32,7 @@ export const JobSchema = new Schema(
     company: {
       type: Types.ObjectId,
       ref: 'Company',
-      required: true,
+      required: false, //changed this to false for now
     },
     jobType: {
       type: String,
@@ -173,7 +173,7 @@ export interface Job {
   title: string;
   subtitle: string;
   poster?: string;
-  status: 'open' | 'closed' | 'draft' | 'expired';
+  status: 'open' | 'closed' | 'draft' | 'expired' | 'archived';
   company: Types.ObjectId;
   jobType: 'full-time' | 'part-time' | 'contract' | 'freelance' | 'internship';
   category: string;
@@ -185,7 +185,7 @@ export interface Job {
       min?: number;
       max?: number;
     };
-    currency: 'USD' | 'EUR' | 'GBP' | 'FCFA';
+    currency: 'USD' | 'EUR' | 'GBP' | 'FCFA' | 'NGN' | 'GHC';
     period: 'hourly' | 'monthly' | 'yearly';
     isNegotiable: boolean;
   };

@@ -51,7 +51,6 @@ async function bootstrap() {
       exceptionFactory: (errors) => {
         logger.error(`Validation errors: ${JSON.stringify(errors)}`);
         const messages = errors.map((error) => {
-          // Add null check for constraints
           const constraints = error.constraints
             ? Object.values(error.constraints).join(', ')
             : 'invalid';
@@ -70,7 +69,14 @@ async function bootstrap() {
 
   const port = process.env.PORT || 5000;
   await app.listen(port);
-
   logger.log(`Application is running on: http://localhost:${port}`);
+
+  // Graceful shutdown on Ctrl+C
+  process.on('SIGINT', async () => {
+    logger.log('Gracefully shutting down...');
+    await app.close();
+    process.exit(0);
+  });
 }
+
 bootstrap();
