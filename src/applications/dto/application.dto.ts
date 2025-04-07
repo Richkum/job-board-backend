@@ -11,7 +11,8 @@ import {
   IsDate,
   IsNotEmpty,
   Min,
-  ArrayMinSize,
+  IsObject,
+  Matches,
 } from 'class-validator';
 
 // Portfolio Link DTO
@@ -35,27 +36,72 @@ export class ExpectedSalaryDto {
   @Min(0)
   amount: number;
 
-  @IsString()
-  @IsOptional()
-  currency?: string = 'USD';
+  @IsEnum(['USD', 'EUR', 'GBP', 'FCFA'])
+  currency: string = 'USD';
 
   @IsEnum(['hourly', 'monthly', 'yearly'])
   period: 'hourly' | 'monthly' | 'yearly' = 'yearly';
 }
 
-// Additional Document DTO
-export class AdditionalDocumentDto {
+// Resume Info DTO
+export class ResumeInfoDto {
+  @IsEnum(['link', 'text', 'file'])
+  format: 'link' | 'text' | 'file';
+
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+
+  @IsEnum(['linkedin', 'github', 'drive', 'dropbox', 'other', null])
+  @IsOptional()
+  source?: 'linkedin' | 'github' | 'drive' | 'dropbox' | 'other' | null;
+
+  @IsString()
+  @IsOptional()
+  fileName?: string;
+
+  @IsString()
+  @IsOptional()
+  mimeType?: string;
+}
+
+// Additional Material DTO
+export class AdditionalMaterialDto {
   @IsString()
   @IsNotEmpty()
   title: string;
+
+  @IsEnum(['link', 'certificate', 'portfolio', 'project', 'other'])
+  type: 'link' | 'certificate' | 'portfolio' | 'project' | 'other';
 
   @IsString()
   @IsUrl()
   url: string;
 
   @IsString()
-  @IsNotEmpty()
-  type: string;
+  @IsOptional()
+  description?: string;
+}
+
+// Professional Profiles DTO
+export class ProfessionalProfilesDto {
+  @IsOptional()
+  @IsUrl()
+  @Matches(/linkedin\.com\//, {
+    message: 'Must be a valid LinkedIn URL',
+  })
+  linkedin?: string;
+
+  @IsOptional()
+  @IsUrl()
+  @Matches(/github\.com\//, {
+    message: 'Must be a valid GitHub URL',
+  })
+  github?: string;
+
+  @IsOptional()
+  @IsUrl()
+  website?: string;
 }
 
 // Create Application DTO
@@ -70,9 +116,9 @@ export class CreateApplicationDto {
   })
   coverLetter: string;
 
-  @IsString()
-  @IsUrl()
-  resume: string;
+  @ValidateNested()
+  @Type(() => ResumeInfoDto)
+  resumeInfo: ResumeInfoDto;
 
   @IsOptional()
   @ValidateNested({ each: true })
@@ -93,8 +139,13 @@ export class CreateApplicationDto {
 
   @IsOptional()
   @ValidateNested({ each: true })
-  @Type(() => AdditionalDocumentDto)
-  additionalDocuments?: AdditionalDocumentDto[];
+  @Type(() => AdditionalMaterialDto)
+  additionalMaterials?: AdditionalMaterialDto[];
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ProfessionalProfilesDto)
+  professionalProfiles?: ProfessionalProfilesDto;
 
   @IsString()
   @IsOptional()
@@ -165,7 +216,13 @@ export class ApplicationResponseDto {
   };
   status: string;
   coverLetter: string;
-  resume: string;
+  resumeInfo: {
+    format: 'link' | 'text' | 'file';
+    content: string;
+    source?: 'linkedin' | 'github' | 'drive' | 'dropbox' | 'other' | null;
+    fileName?: string;
+    mimeType?: string;
+  };
   portfolio?: {
     links: {
       title: string;
@@ -179,11 +236,17 @@ export class ApplicationResponseDto {
     currency: string;
     period: string;
   };
-  additionalDocuments?: {
+  additionalMaterials?: {
     title: string;
+    type: 'link' | 'certificate' | 'portfolio' | 'project' | 'other';
     url: string;
-    type: string;
+    description?: string;
   }[];
+  professionalProfiles?: {
+    linkedin?: string;
+    github?: string;
+    website?: string;
+  };
   notes?: string;
   reviewNotes?: string;
   interviewDate?: Date;

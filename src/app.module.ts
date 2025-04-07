@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { JobsModule } from './jobs/jobs.module';
+import { NotificationModule } from './notifications/notification.module';
+import { ApplicationModule } from './applications/application.module';
 
 @Module({
   imports: [
@@ -24,6 +26,10 @@ import { JobsModule } from './jobs/jobs.module';
     UsersModule,
     //Add Job Module
     JobsModule,
+    // Add Notification Module
+    NotificationModule,
+    // Add Application Module
+    ApplicationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
