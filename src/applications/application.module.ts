@@ -4,6 +4,7 @@ import { ApplicationController } from './application.controller';
 import { ApplicationService } from './application.service';
 import { ApplicationSchema } from './schema/application.schema';
 import { JobSchema } from '../jobs/schema/job.schema';
+import { NotificationModule } from '../notifications/notification.module'; // Updated path
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { JobSchema } from '../jobs/schema/job.schema';
       { name: 'Application', schema: ApplicationSchema },
       { name: 'Job', schema: JobSchema },
     ]),
+    NotificationModule,
   ],
   controllers: [ApplicationController],
   providers: [ApplicationService],

@@ -22,16 +22,54 @@ export const ApplicationSchema = new Schema(
       required: true,
       minlength: [100, 'Cover letter must be at least 100 characters long'],
     },
-    resume: {
-      type: String, // URL to resume (Cloudinary)
+    // Modified resume field to handle multiple formats
+    resumeInfo: {
+      type: {
+        format: {
+          type: String,
+          enum: ['link', 'text', 'file'],
+          required: true,
+        },
+        content: {
+          type: String,
+          required: true,
+        },
+        // For external links (LinkedIn, Google Drive, etc.)
+        source: {
+          type: String,
+          enum: ['linkedin', 'github', 'drive', 'dropbox', 'other', null],
+          default: null,
+        },
+        // Original filename if it's a file
+        fileName: String,
+        // MIME type if it's a file
+        mimeType: String,
+      },
       required: true,
     },
     portfolio: {
       type: {
         links: [
           {
-            title: { type: String },
-            url: { type: String },
+            title: {
+              type: String,
+              required: true,
+            },
+            url: {
+              type: String,
+              required: true,
+              validate: {
+                validator: function (v: string) {
+                  try {
+                    new URL(v);
+                    return true;
+                  } catch (e) {
+                    return false;
+                  }
+                },
+                message: 'Please provide a valid URL',
+              },
+            },
             description: { type: String },
           },
         ],
@@ -43,27 +81,97 @@ export const ApplicationSchema = new Schema(
       default: [],
     },
     expectedSalary: {
-      amount: { type: Number },
-      currency: { type: String, default: 'USD' },
+      amount: {
+        type: Number,
+        validate: {
+          validator: function (v: number) {
+            return v > 0;
+          },
+          message: 'Expected salary amount must be greater than 0',
+        },
+      },
+      currency: {
+        type: String,
+        default: 'USD',
+        enum: ['USD', 'EUR', 'GBP', 'FCFA'],
+      },
       period: {
         type: String,
         enum: ['hourly', 'monthly', 'yearly'],
         default: 'yearly',
       },
     },
-    additionalDocuments: [
+    // Modified to support multiple link types instead of files
+    additionalMaterials: [
       {
-        title: { type: String },
-        url: { type: String }, // Cloudinary URL
-        type: { type: String },
+        title: {
+          type: String,
+          required: true,
+        },
+        type: {
+          type: String,
+          enum: ['link', 'certificate', 'portfolio', 'project', 'other'],
+          required: true,
+        },
+        url: {
+          type: String,
+          required: true,
+          validate: {
+            validator: function (v: string) {
+              try {
+                new URL(v);
+                return true;
+              } catch (e) {
+                return false;
+              }
+            },
+            message: 'Please provide a valid URL',
+          },
+        },
+        description: { type: String },
       },
     ],
+    professionalProfiles: {
+      linkedin: {
+        type: String,
+        validate: {
+          validator: function (v: string) {
+            return !v || v.includes('linkedin.com/');
+          },
+          message: 'Please provide a valid LinkedIn URL',
+        },
+      },
+      github: {
+        type: String,
+        validate: {
+          validator: function (v: string) {
+            return !v || v.includes('github.com/');
+          },
+          message: 'Please provide a valid GitHub URL',
+        },
+      },
+      website: {
+        type: String,
+        validate: {
+          validator: function (v: string) {
+            try {
+              if (!v) return true;
+              new URL(v);
+              return true;
+            } catch (e) {
+              return false;
+            }
+          },
+          message: 'Please provide a valid URL',
+        },
+      },
+    },
     notes: {
       type: String,
       default: '',
     },
     reviewNotes: {
-      type: String, // For employer's internal notes
+      type: String,
       default: '',
     },
     interviewDate: {
@@ -80,13 +188,13 @@ export const ApplicationSchema = new Schema(
   },
 );
 
-// Indexes for better query performance
+// Keep existing indexes
 ApplicationSchema.index({ job: 1, applicant: 1 }, { unique: true });
 ApplicationSchema.index({ status: 1, createdAt: -1 });
 ApplicationSchema.index({ applicant: 1, createdAt: -1 });
 ApplicationSchema.index({ job: 1, createdAt: -1 });
 
-// Handle application count updates
+// Keep existing application count updates middleware
 ApplicationSchema.pre('save', async function (next) {
   if (this.isNew) {
     const Job = this.model('Job');
@@ -121,7 +229,7 @@ ApplicationSchema.pre(
   },
 );
 
-// Status transition validation and handling
+// Keep existing status transition validation
 ApplicationSchema.methods.updateStatus = function (
   newStatus: 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'withdrawn',
   notes?: string,
@@ -153,36 +261,19 @@ ApplicationSchema.methods.updateStatus = function (
   }
 };
 
-// Validation middleware
-ApplicationSchema.pre('save', function (next) {
-  // Validate portfolio links if they exist
-  if ((this.portfolio?.links ?? []).length > 0) {
-    const invalidLinks = (this.portfolio?.links ?? []).filter(
-      (link) => !link.title || !link.url,
-    );
-    if (invalidLinks.length > 0) {
-      next(new Error('Portfolio links must have both title and URL'));
-      return;
-    }
-  }
-
-  // Validate expected salary if it exists
-  if (this.expectedSalary?.amount) {
-    if (this.expectedSalary.amount <= 0) {
-      next(new Error('Expected salary amount must be greater than 0'));
-      return;
-    }
-  }
-
-  next();
-});
-
+// Updated interface to match schema changes
 export interface Application {
   job: Types.ObjectId;
   applicant: Types.ObjectId;
   status: 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'withdrawn';
   coverLetter: string;
-  resume: string;
+  resumeInfo: {
+    format: 'link' | 'text' | 'file';
+    content: string;
+    source: 'linkedin' | 'github' | 'drive' | 'dropbox' | 'other' | null;
+    fileName?: string;
+    mimeType?: string;
+  };
   portfolio?: {
     links: {
       title: string;
@@ -193,14 +284,20 @@ export interface Application {
   relevantExperience: string[];
   expectedSalary?: {
     amount: number;
-    currency: string;
+    currency: 'USD' | 'EUR' | 'GBP' | 'FCFA' | 'NGN' | 'GHS';
     period: 'hourly' | 'monthly' | 'yearly';
   };
-  additionalDocuments?: {
+  additionalMaterials?: {
     title: string;
+    type: 'link' | 'certificate' | 'portfolio' | 'project' | 'other';
     url: string;
-    type: string;
+    description?: string;
   }[];
+  professionalProfiles?: {
+    linkedin?: string;
+    github?: string;
+    website?: string;
+  };
   notes?: string;
   reviewNotes?: string;
   interviewDate?: Date | null;
