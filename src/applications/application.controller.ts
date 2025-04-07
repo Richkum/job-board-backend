@@ -39,7 +39,7 @@ export class ApplicationController {
       `Creating new application for job ${createApplicationDto.jobId} - User: ${req.user._id}`,
     );
 
-    if (req.user.role !== 'job-seeker') {
+    if (req.user.role !== 'jobSeeker') {
       throw new BadRequestException('Only job seekers can apply for jobs');
     }
 

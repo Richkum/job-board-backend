@@ -36,7 +36,7 @@ export class ExpectedSalaryDto {
   @Min(0)
   amount: number;
 
-  @IsEnum(['USD', 'EUR', 'GBP', 'FCFA'])
+  @IsEnum(['USD', 'EUR', 'GBP', 'FCFA', 'NGN', 'GHC'])
   currency: string = 'USD';
 
   @IsEnum(['hourly', 'monthly', 'yearly'])

@@ -284,7 +284,7 @@ export interface Application {
   relevantExperience: string[];
   expectedSalary?: {
     amount: number;
-    currency: 'USD' | 'EUR' | 'GBP' | 'FCFA' | 'NGN' | 'GHS';
+    currency: 'USD' | 'EUR' | 'GBP' | 'FCFA' | 'NGN' | 'GHC';
     period: 'hourly' | 'monthly' | 'yearly';
   };
   additionalMaterials?: {
