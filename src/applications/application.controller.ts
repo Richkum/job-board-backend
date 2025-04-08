@@ -64,7 +64,7 @@ export class ApplicationController {
   ): Promise<PaginatedApplicationsResponseDto> {
     this.logger.log(`Fetching applications for user ${req.user._id}`);
 
-    if (req.user.role !== 'job-seeker') {
+    if (req.user.role !== 'jobSeeker') {
       throw new BadRequestException(
         'Only job seekers can view their applications',
       );
