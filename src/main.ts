@@ -33,7 +33,15 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [
+      process.env.FRONTEND_URL,
+      /^http:\/\/localhost:\d+$/, // Any localhost with any port
+      /^http:\/\/127.0.0.1:\d+$/, // Any 127.0.0.1 with any port
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5173', // Common Vite port
+      'http://localhost:8080', // Common alternative port
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

@@ -5,10 +5,11 @@ import { MongooseConfigService } from './config/mongoose.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { JobsModule } from './jobs/jobs.module';
 import { NotificationModule } from './notifications/notification.module';
 import { ApplicationModule } from './applications/application.module';
+import { UsersModule } from './users/users.module';
+import { JobsCrawledModule } from './jobs-crawled/jobs-crawled.module';
 
 @Module({
   imports: [
@@ -30,6 +31,8 @@ import { ApplicationModule } from './applications/application.module';
     NotificationModule,
     // Add Application Module
     ApplicationModule,
+    //Add CrawledJobsModule
+    JobsCrawledModule,
   ],
   controllers: [AppController],
   providers: [AppService],
