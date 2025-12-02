@@ -6,11 +6,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UserSchema } from '../users/schema/user.schema';
 import { DeviceDetectorService } from '../common/middleware/device-detector.service';
 import { EmailService } from '../common/utils/email.service';
 import { JwtStrategy } from '../auth/gaurd/jwt.strategy';
 import { JwtAuthGuard } from './gaurd/jwt-auth.guard';
+import { UserSchema } from 'src/users/schema/user.schema';
 
 @Module({
   imports: [

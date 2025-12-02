@@ -10,9 +10,9 @@ import { Model, Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
-import { UserDocument } from '../users/schema/user.schema';
 import { DeviceDetectorService } from '../common/middleware/device-detector.service';
 import { EmailService } from '../common/utils/email.service';
+import { UserDocument } from 'src/users/schema/user.schema';
 
 @Injectable()
 export class AuthService {
