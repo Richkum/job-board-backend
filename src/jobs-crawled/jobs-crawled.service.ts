@@ -208,7 +208,7 @@ export class JobsCrawledService {
       app_id: appId,
       app_key: appKey,
       what: jobQuery,
-      results_per_page: 10, // Maximum for free tier
+      results_per_page: 25, // Maximum for free tier
       max_days_old: 30, // Jobs from last 30 days
       where: countryCode, // Ensure 'where' matches the URL country
       // The previous 'content_type' is correctly omitted
