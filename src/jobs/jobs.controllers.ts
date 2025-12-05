@@ -28,7 +28,8 @@ export class JobsController {
 
   constructor(private readonly jobsService: JobsService) {}
 
-  // Keep your existing createJob method...
+  // ==================== PROTECTED ENDPOINTS (Require Auth) ====================
+
   @Post()
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('poster', multerMemoryConfig))
@@ -37,7 +38,6 @@ export class JobsController {
     @Body() createJobDto: CreateJobDto,
     @UploadedFile() posterFile?: Express.Multer.File,
   ): Promise<Job> {
-    // Add return type
     this.logger.log('Creating new job - User ID:', req.user._id);
 
     if (!req.user.role || req.user.role !== 'employer') {
@@ -46,18 +46,12 @@ export class JobsController {
 
     try {
       let companyId = req.user.company;
-      // if (!companyId) {
-      //   throw new BadRequestException(
-      //     'Employer must be associated with a company to post jobs',
-      //   );
-      // }
-      const tempCompanyId = '000000000000000000000000'; // Temporary placeholder
+      const tempCompanyId = '000000000000000000000000';
       if (!companyId) {
         console.log(
           'Company ID not found, using temporary placeholder:',
           tempCompanyId,
         );
-
         companyId = tempCompanyId;
       }
 
@@ -68,7 +62,7 @@ export class JobsController {
         posterFile,
       );
 
-      this.logger.log('Job created successfully:', job._id?.toString()); // Use optional chaining and toString()
+      this.logger.log('Job created successfully:', job._id?.toString());
       return job;
     } catch (error) {
       this.logger.error('Failed to create job:', error);
@@ -81,19 +75,6 @@ export class JobsController {
   async getEmployerJobs(@Request() req) {
     return this.jobsService.getEmployerJobs(req.user._id);
   }
-
-  @Get('company/:companyId')
-  async getCompanyJobs(@Param('companyId') companyId: string) {
-    return this.jobsService.getCompanyJobs(companyId);
-  }
-
-  @Put(':id/view')
-  async incrementJobViews(@Param('id') jobId: string) {
-    await this.jobsService.incrementJobViews(jobId);
-    return { success: true };
-  }
-
-  // Add these methods to your JobsController class
 
   @Get('employer/stats')
   @UseGuards(JwtAuthGuard)
@@ -123,14 +104,20 @@ export class JobsController {
     return this.jobsService.duplicateJob(jobId, req.user._id);
   }
 
+  // ==================== PUBLIC ENDPOINTS (No Auth Required) ====================
+
+  /**
+   * PUBLIC: Get active jobs - No authentication required
+   * Anyone can view the job listings
+   */
   @Get()
-  @UseGuards(JwtAuthGuard) // Added auth guard as per your pattern
+  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
   async getActiveJobs(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ): Promise<JobResponseDto> {
     this.logger.log(
-      `Fetching active jobs - Page: ${page || 1}, Limit: ${limit || 10}`,
+      `PUBLIC - Fetching active jobs - Page: ${page || 1}, Limit: ${limit || 10}`,
     );
     try {
       return await this.jobsService.getActiveJobs(
@@ -143,13 +130,16 @@ export class JobsController {
     }
   }
 
-  // Search and filter jobs
+  /**
+   * PUBLIC: Search and filter jobs - No authentication required
+   * Anyone can search through job listings
+   */
   @Get('search')
-  @UseGuards(JwtAuthGuard) // Added auth guard as per your pattern
+  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
   async searchJobs(
     @Query() searchJobsDto: SearchJobsDto,
   ): Promise<JobResponseDto> {
-    this.logger.log('Searching jobs with criteria:', searchJobsDto);
+    this.logger.log('PUBLIC - Searching jobs with criteria:', searchJobsDto);
     try {
       return await this.jobsService.searchJobs(searchJobsDto);
     } catch (error) {
@@ -158,16 +148,40 @@ export class JobsController {
     }
   }
 
-  // Get job details
+  /**
+   * PUBLIC: Get job details by ID - No authentication required
+   * Anyone can view individual job details
+   */
   @Get(':id/details')
-  @UseGuards(JwtAuthGuard) // Added auth guard as per your pattern
+  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
   async getJobDetails(@Param('id') jobId: string): Promise<Job> {
-    this.logger.log(`Fetching details for job: ${jobId}`);
+    this.logger.log(`PUBLIC - Fetching details for job: ${jobId}`);
     try {
       return await this.jobsService.getJobById(jobId);
     } catch (error) {
       this.logger.error(`Failed to fetch job details for ${jobId}:`, error);
       throw error;
     }
+  }
+
+  /**
+   * PUBLIC: Increment job views - No authentication required
+   * Track views even for non-logged-in users
+   */
+  @Put(':id/view')
+  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
+  async incrementJobViews(@Param('id') jobId: string) {
+    await this.jobsService.incrementJobViews(jobId);
+    return { success: true };
+  }
+
+  /**
+   * PUBLIC: Get company jobs - No authentication required
+   * Anyone can view jobs posted by a specific company
+   */
+  @Get('company/:companyId')
+  // Already public - keeping it this way
+  async getCompanyJobs(@Param('companyId') companyId: string) {
+    return this.jobsService.getCompanyJobs(companyId);
   }
 }
