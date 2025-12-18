@@ -265,7 +265,7 @@ export class ApplicationService {
       message: notificationMessage,
       relatedJob: job._id,
       relatedApplication: application._id,
-      actionUrl: `/applications`, ///${application._id}
+      actionUrl: `/applications`,
       priority,
     });
 
@@ -308,7 +308,7 @@ export class ApplicationService {
       message: `${(application.applicant as any).name} has withdrawn their application for ${job.title}`,
       relatedJob: job._id,
       relatedApplication: application._id,
-      actionUrl: `/applications`, ///${application._id}
+      actionUrl: `/applications`,
       priority: 'medium',
     });
 

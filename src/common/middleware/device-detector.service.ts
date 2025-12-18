@@ -1,4 +1,3 @@
-// src/auth/device-detector.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { Request } from 'express';
 import * as DeviceDetector from 'device-detector-js';
@@ -43,7 +42,7 @@ export class DeviceDetectorService {
       location: {
         country: geo?.country || '',
         city: geo?.city || '',
-        coordinates: coordinates, // Always a valid [number, number] tuple
+        coordinates: coordinates,
       },
     };
   }

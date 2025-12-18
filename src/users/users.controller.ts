@@ -23,8 +23,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getMyProfile(@Request() req) {
-    console.log('Controller - User object:', req.user); // Add this log
-    return this.usersService.getUserProfile(req.user._id); // Changed from userId to _id
+    console.log('Controller - User object:', req.user);
+    return this.usersService.getUserProfile(req.user._id);
   }
 
   @UseGuards(JwtAuthGuard)

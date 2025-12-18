@@ -56,7 +56,6 @@ export class AdzunaJobResponseDto {
   };
   salary_min?: number;
   salary_max?: number;
-  // ... other Adzuna fields
 }
 
 // src/jobs-crawled/dto/remoteok-response.dto.ts

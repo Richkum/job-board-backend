@@ -104,14 +104,13 @@ export class JobsController {
     return this.jobsService.duplicateJob(jobId, req.user._id);
   }
 
-  // ==================== PUBLIC ENDPOINTS (No Auth Required) ====================
+  // ==================== PUBLIC ENDPOINTS ====================
 
   /**
    * PUBLIC: Get active jobs - No authentication required
    * Anyone can view the job listings
    */
   @Get()
-  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
   async getActiveJobs(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -135,7 +134,6 @@ export class JobsController {
    * Anyone can search through job listings
    */
   @Get('search')
-  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
   async searchJobs(
     @Query() searchJobsDto: SearchJobsDto,
   ): Promise<JobResponseDto> {
@@ -153,7 +151,6 @@ export class JobsController {
    * Anyone can view individual job details
    */
   @Get(':id/details')
-  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
   async getJobDetails(@Param('id') jobId: string): Promise<Job> {
     this.logger.log(`PUBLIC - Fetching details for job: ${jobId}`);
     try {
@@ -169,7 +166,6 @@ export class JobsController {
    * Track views even for non-logged-in users
    */
   @Put(':id/view')
-  // REMOVED @UseGuards(JwtAuthGuard) - This is now public!
   async incrementJobViews(@Param('id') jobId: string) {
     await this.jobsService.incrementJobViews(jobId);
     return { success: true };
@@ -180,7 +176,6 @@ export class JobsController {
    * Anyone can view jobs posted by a specific company
    */
   @Get('company/:companyId')
-  // Already public - keeping it this way
   async getCompanyJobs(@Param('companyId') companyId: string) {
     return this.jobsService.getCompanyJobs(companyId);
   }

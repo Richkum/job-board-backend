@@ -23,8 +23,6 @@ export class AuthService {
     private emailService: EmailService,
   ) {}
 
-  // These are just the updated methods for auth.service.ts with better logging
-
   async register(userData: any, req: Request) {
     const { username, email, password } = userData;
 
@@ -48,7 +46,7 @@ export class AuthService {
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000,
     ).toString();
-    const verificationCodeExpires = new Date(Date.now() + 25 * 60 * 1000); // 25 minutes
+    const verificationCodeExpires = new Date(Date.now() + 25 * 60 * 1000);
     console.log(`Generated verification code for user: ${username}`);
 
     // Create new user
@@ -58,7 +56,7 @@ export class AuthService {
       password: hashedPassword,
       verificationCode,
       verificationCodeExpires,
-      sessions: [], // Will add first session after verification
+      sessions: [],
     });
 
     await newUser.save();
@@ -326,7 +324,7 @@ export class AuthService {
     }
 
     return user.sessions.map((session) => ({
-      id: (session as any)._id || new Types.ObjectId(), // Handle MongoDB ObjectId
+      id: (session as any)._id || new Types.ObjectId(),
       device: session.device,
       location: session.location,
       ipAddress: session.ipAddress,
@@ -355,8 +353,6 @@ export class AuthService {
     return { success: true, message: 'Logged out successfully' };
   }
 
-  // Add these methods to your auth.service.ts file
-
   /**
    * Initiates password reset process by sending a verification code to user's email
    */
@@ -364,7 +360,6 @@ export class AuthService {
     const user = await this.userModel.findOne({ email });
 
     if (!user) {
-      // For security reasons, don't reveal whether the email exists
       return {
         success: true,
         message:

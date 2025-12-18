@@ -114,7 +114,7 @@ export class UsersService {
     // Only update if there are changes
     if (Object.keys(updateData).length === 0) {
       console.log('No changes, returning original user');
-      return user; // Return the original user if no updates
+      return user;
     }
 
     // Update the user with all the changes

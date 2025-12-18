@@ -186,7 +186,7 @@ export class JobsCrawledService {
     jobQuery: string = 'software developer',
   ): Promise<number> {
     // Use a constant for the country code, making it easy to change
-    const countryCode = 'us'; // CHANGED from 'gb' to 'us' to match working test
+    const countryCode = 'us';
 
     const appId = '716b0ec9';
     const appKey = '187580f3068a047bcc9543568efca6da';
@@ -208,10 +208,9 @@ export class JobsCrawledService {
       app_id: appId,
       app_key: appKey,
       what: jobQuery,
-      results_per_page: 25, // Maximum for free tier
-      max_days_old: 30, // Jobs from last 30 days
-      where: countryCode, // Ensure 'where' matches the URL country
-      // The previous 'content_type' is correctly omitted
+      results_per_page: 25,
+      max_days_old: 30,
+      where: countryCode,
     };
 
     // Log the final request details before execution
@@ -251,7 +250,7 @@ export class JobsCrawledService {
         this.logger.warn(
           `Received 0 jobs. Check query, country code, and date range.`,
         );
-        return 0; // Exit early if no jobs
+        return 0;
       }
 
       if (jobs.length > 0) {
@@ -281,7 +280,7 @@ export class JobsCrawledService {
           errorCount++;
           this.logger.error(
             `Failed to process Adzuna job ${jobData.id}: ${jobError.message}`,
-            jobError.stack, // Log stack for processing error
+            jobError.stack,
           );
         }
       }
@@ -331,7 +330,7 @@ export class JobsCrawledService {
               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             Accept: 'application/json',
           },
-          timeout: 10000, // 10 second timeout
+          timeout: 10000,
         }),
       );
 
@@ -464,13 +463,13 @@ export class JobsCrawledService {
         country: this.extractAdzunaCountry(adzunaData),
         city: this.extractAdzunaCity(adzunaData),
         address: adzunaData.location?.display_name || '',
-        display_name: adzunaData.location?.display_name || '', // Add this line
+        display_name: adzunaData.location?.display_name || '',
       },
 
       salary: {
         min: salaryMin ?? 0,
-        max: salaryMax ?? 0, // Default to 0 if salaryMax is undefined
-        currency: 'USD', // Adzuna uses USD for US jobs
+        max: salaryMax ?? 0,
+        currency: 'USD',
         period: 'yearly',
         isDisclosed: !!(salaryMin || salaryMax),
       },
@@ -517,11 +516,11 @@ export class JobsCrawledService {
       },
 
       location: {
-        type: 'remote', // RemoteOK is always remote
+        type: 'remote',
         country: remoteOkData.location || 'Worldwide',
-        city: remoteOkData.city || '', // Add the missing city property
-        address: remoteOkData.address || '', // Add the missing address property
-        display_name: remoteOkData.display_name || '', // Add the missing display_name property
+        city: remoteOkData.city || '',
+        address: remoteOkData.address || '',
+        display_name: remoteOkData.display_name || '',
       },
 
       salary: {
@@ -747,9 +746,6 @@ export class JobsCrawledService {
 
   // ==================== SCHEDULED TASKS ====================
 
-  /**
-   * Run job fetch every day at 3 AM
-   */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async scheduledJobFetch() {
     this.logger.log('Running scheduled job fetch...');

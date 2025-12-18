@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JobSchema } from './schema/job.schema';
-import { CrawledJobSchema } from '../jobs-crawled/schema/job-crawled.schema'; // Import crawled schema
+import { CrawledJobSchema } from '../jobs-crawled/schema/job-crawled.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { JobsController } from './jobs.controllers';
 import { JobsService } from './jobs.service';
@@ -10,7 +10,7 @@ import { JobsService } from './jobs.service';
   imports: [
     MongooseModule.forFeature([
       { name: 'Job', schema: JobSchema },
-      { name: 'CrawledJob', schema: CrawledJobSchema }, // Add this line
+      { name: 'CrawledJob', schema: CrawledJobSchema },
     ]),
     CloudinaryModule,
   ],
