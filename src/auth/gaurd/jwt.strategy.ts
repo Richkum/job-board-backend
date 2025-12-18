@@ -31,14 +31,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
-    // Return a plain object with all necessary ID fields
     return {
       _id: user._id.toString(),
       id: user._id.toString(),
-      userId: user._id.toString(), // Added this for backwards compatibility
+      userId: user._id.toString(),
       email: user.email,
       role: user.role,
-      // Add other necessary user fields
     };
   }
 }

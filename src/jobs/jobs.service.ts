@@ -25,10 +25,8 @@ export class JobsService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  // ==================== KEEP ALL YOUR EXISTING METHODS ====================
   // createJob, getEmployerJobs, getCompanyJobs, incrementJobViews,
   // getEmployerJobsStats, updateJobStatus, getRecentJobsActivity, duplicateJob
-  // ... (I'm not repeating them here to save space, but keep them all)
 
   async createJob(
     employerId: string,
@@ -530,7 +528,6 @@ export class JobsService {
    */
   async getJobById(jobId: string): Promise<any> {
     try {
-      // Try regular jobs first
       let job = await this.jobModel
         .findById(jobId)
         .populate('company', 'name logo description')
@@ -555,7 +552,7 @@ export class JobsService {
         return {
           ...this.normalizeCrawledJob(crawledJob),
           isCrawled: true,
-          canApply: false, // Users need to apply via external link
+          canApply: false,
         };
       }
 

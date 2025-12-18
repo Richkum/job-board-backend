@@ -5,7 +5,7 @@ export const UserSchema = new Schema(
     username: {
       type: String,
       required: true,
-      trim: true, // removes extra spaces
+      trim: true,
       match: [
         /^[a-zA-Z0-9 ]{3,30}$/,
         'Username must be 3-30 characters and contain letters, numbers, or spaces.',
@@ -15,13 +15,13 @@ export const UserSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: true, // ensure email is stored in lowercase
+      lowercase: true,
       trim: true,
       match: [/\S+@\S+\.\S+/, 'Please enter a valid email address.'],
     },
     password: {
       type: String,
-      required: true, // Store hashed password only
+      required: true,
     },
     role: {
       type: String,
@@ -54,7 +54,7 @@ export const UserSchema = new Schema(
     },
     sessions: [
       {
-        token: { type: String, required: true }, // JWT or session ID
+        token: { type: String, required: true },
         device: {
           name: { type: String, required: true }, // e.g., "Chrome on Windows"
           os: { type: String, required: true }, // Operating system like "Windows 10", "iOS 16.5"
@@ -79,7 +79,7 @@ export const UserSchema = new Schema(
           },
         },
         lastActivity: { type: Date, default: Date.now },
-        isCurrent: { type: Boolean, default: true }, // Mark active sessions
+        isCurrent: { type: Boolean, default: true },
       },
     ],
     googleId: { type: String, sparse: true },

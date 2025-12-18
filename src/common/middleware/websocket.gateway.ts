@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // Configure according to your needs
+    origin: '*',
   },
 })
 export class WebsocketGateway

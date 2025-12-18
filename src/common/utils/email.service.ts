@@ -1,4 +1,3 @@
-// src/auth/email.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
@@ -14,10 +13,10 @@ export class EmailService {
       service: 'gmail',
       host: 'smtp.gmail.com',
       port: 465,
-      secure: true, // use SSL
+      secure: true,
       auth: {
         user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_APP_PASSWORD'), // Use your app password from Gmail
+        pass: this.configService.get<string>('EMAIL_APP_PASSWORD'),
       },
     });
 
@@ -112,8 +111,6 @@ export class EmailService {
       return { success: false, error: error.message };
     }
   }
-
-  // Add this method to your email.service.ts file
 
   /**
    * Sends a password reset email with verification code
